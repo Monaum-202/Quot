@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../core/constants/hive_box_names.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 import '../../data/models/customer_model.dart';
 import '../widgets/customer_card.dart';
 import 'package:uuid/uuid.dart';
@@ -134,8 +134,9 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
                 }).toList();
 
                 if (customers.isEmpty) {
-                  return const Center(
-                    child: Text('No customers found'),
+                  return const EmptyStateWidget(
+                    message: 'No customers found',
+                    icon: Icons.person_off_outlined,
                   );
                 }
 

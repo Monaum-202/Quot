@@ -3,6 +3,8 @@ import 'package:gap/gap.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 
+import '../../company_profile/presentation/screens/company_profile_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -11,7 +13,19 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.business),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CompanyProfileScreen()),
+              );
+            },
+          ),
+        ],
       ),
+// ...
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

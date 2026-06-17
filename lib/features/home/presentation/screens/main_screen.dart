@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../quotations/presentation/screens/quotation_list_screen.dart';
 import '../../customers/presentation/screens/customer_list_screen.dart';
 import '../../company_profile/presentation/screens/company_profile_screen.dart';
+import '../../reports/presentation/screens/reports_screen.dart';
 import 'dashboard_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const DashboardScreen(),
     const QuotationListScreen(),
     const CustomerListScreen(),
-    const CompanyProfileScreen(),
+    const ReportsScreen(),
   ];
 
   @override
@@ -36,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.description), label: 'Quotations'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Reports'),
         ],
       ),
     );
