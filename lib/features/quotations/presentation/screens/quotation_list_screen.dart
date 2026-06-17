@@ -1,14 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../core/constants/hive_box_names.dart';
-import '../../data/models/quotation_model.dart';
+import 'package:gap/gap.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../data/models/quotation_model.dart';
+import '../data/models/quotation_status.dart';
+import '../providers/quotation_provider.dart';
+import '../widgets/status_badge.dart';
 import 'create_quotation_screen.dart';
+import 'quotation_preview_screen.dart';
 
-class QuotationListScreen extends StatelessWidget {
+class QuotationListScreen extends ConsumerWidget {
   const QuotationListScreen({super.key});
 
+  void _showStatusUpdateSheet(BuildContext context, WidgetRef ref, QuotationModel q) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: QuotationStatus.values.map((status) {
+          return ListTile(
+            title: Text(status.name.toUpperCase()),
+            leading: Icon(Icons.circle, color: _getStatusColor(status)),
+            onTap: () async {
+              q.status = status;
+              await ref.read(quotationsProvider.notifier).saveQuotation(q);
+              Navigator.pop(context);
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Color _getStatusColor(QuotationStatus status) {
+    switch (status) {
+      case QuotationStatus.draft: return Colors.grey;
+      case QuotationStatus.sent: return Colors.blue;
+      case QuotationStatus.approved: return Colors.green;
+      case QuotationStatus.rejected: return Colors.red;
+      case QuotationStatus.convertedToInvoice: return Colors.purple;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quotations'),
@@ -17,29 +53,44 @@ class QuotationListScreen extends StatelessWidget {
         valueListenable: Hive.lazyBox<QuotationModel>(HiveBoxNames.quotations).listenable(),
         builder: (context, box, _) {
           if (box.isEmpty) {
-            return const Center(child: Text('No quotations yet. Tap + to create one.'));
+            return const EmptyStateWidget(
+              message: 'No quotations yet. Tap + to create one.',
+              icon: Icons.description_outlined,
+            );
           }
 
+          final keys = box.keys.toList().reversed.toList();
+
           return ListView.builder(
-            itemCount: box.length,
+            itemCount: keys.length,
             itemBuilder: (context, index) {
-              final key = box.keyAt(index);
-              // Since it's a lazy box, we need to await get(), but Builder is sync.
-              // Better use FutureBuilder or a regular Box if data is small.
-              // For simplicity in this step, I'll just show keys or use a regular box
-              // but the prompt asked for LazyBox.
+              final key = keys[index];
               return FutureBuilder(
                 future: box.get(key),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const ListTile(title: Text('Loading...'));
+                  if (!snapshot.hasData) return const SizedBox();
                   final q = snapshot.data as QuotationModel;
-                  return ListTile(
-                    title: Text(q.quotationNumber),
-                    subtitle: Text(q.customerName),
-                    trailing: Text(q.status.name.toUpperCase()),
-                    onTap: () {
-                      // Navigate to preview
-                    },
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: ListTile(
+                      title: Text(q.quotationNumber, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('${q.customerName} - ${q.projectName}'),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('৳${q.grandTotal.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const Gap(4),
+                          StatusBadge(status: q.status),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => QuotationPreviewScreen(quotation: q)),
+                        );
+                      },
+                      onLongPress: () => _showStatusUpdateSheet(context, ref, q),
+                    ),
                   );
                 },
               );
