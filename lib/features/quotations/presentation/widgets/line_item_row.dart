@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../data/models/line_item_model.dart';
+import 'package:invoice_maker/features/quotations/data/models/line_item_model.dart';
 
 class LineItemRow extends StatelessWidget {
   final LineItemModel item;

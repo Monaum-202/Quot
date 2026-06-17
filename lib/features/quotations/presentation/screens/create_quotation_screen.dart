@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../core/utils/quotation_number_gen.dart';
-import '../../../../core/utils/date_formatter.dart';
-import '../../customers/data/models/customer_model.dart';
-import '../../customers/providers/customer_provider.dart';
-import '../../templates/providers/template_provider.dart';
-import '../data/models/quotation_model.dart';
-import '../data/models/line_item_model.dart';
-import '../data/models/quotation_status.dart';
-import '../providers/quotation_provider.dart';
-import '../widgets/line_item_row.dart';
+import 'package:invoice_maker/core/utils/quotation_number_gen.dart';
+import 'package:invoice_maker/core/utils/date_formatter.dart';
+import 'package:invoice_maker/features/customers/data/models/customer_model.dart';
+import 'package:invoice_maker/features/customers/providers/customer_provider.dart';
+import 'package:invoice_maker/features/templates/providers/template_provider.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_model.dart';
+import 'package:invoice_maker/features/quotations/data/models/line_item_model.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
+import 'package:invoice_maker/features/quotations/providers/quotation_provider.dart';
+import 'package:invoice_maker/features/quotations/presentation/widgets/line_item_row.dart';
 import 'quotation_preview_screen.dart';
 
 class CreateQuotationScreen extends ConsumerStatefulWidget {

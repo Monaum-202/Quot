@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/utils/currency_formatter.dart';
-
-import '../../company_profile/presentation/screens/company_profile_screen.dart';
+import 'package:invoice_maker/core/constants/app_colors.dart';
+import 'package:invoice_maker/core/utils/currency_formatter.dart';
+import 'package:invoice_maker/features/company_profile/presentation/screens/company_profile_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -25,7 +24,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-// ...
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,7 +41,6 @@ class DashboardScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const Gap(8),
-            // Placeholder for recent quotations
             const Center(child: Text('No recent activity')),
           ],
         ),

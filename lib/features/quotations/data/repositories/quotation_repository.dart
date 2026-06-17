@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../core/constants/hive_box_names.dart';
-import '../models/quotation_model.dart';
+import 'package:invoice_maker/core/constants/hive_box_names.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_model.dart';
 
 class QuotationRepository {
   final LazyBox<QuotationModel> _box = Hive.lazyBox<QuotationModel>(HiveBoxNames.quotations);

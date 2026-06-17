@@ -5,14 +5,14 @@ import 'package:printing/printing.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
-import '../../company_profile/providers/company_provider.dart';
-import '../data/models/quotation_model.dart';
-import '../data/models/quotation_status.dart';
-import '../../../../core/utils/pdf_generator.dart';
-import '../../../../core/utils/invoice_number_gen.dart';
-import '../providers/quotation_provider.dart';
-import '../../invoices/data/models/invoice_model.dart';
-import '../../invoices/providers/invoice_provider.dart';
+import 'package:invoice_maker/features/company_profile/providers/company_provider.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_model.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
+import 'package:invoice_maker/core/utils/pdf_generator.dart';
+import 'package:invoice_maker/core/utils/invoice_number_gen.dart';
+import 'package:invoice_maker/features/quotations/providers/quotation_provider.dart';
+import 'package:invoice_maker/features/invoices/data/models/invoice_model.dart';
+import 'package:invoice_maker/features/invoices/providers/invoice_provider.dart';
 import 'signature_screen.dart';
 
 class QuotationPreviewScreen extends ConsumerWidget {

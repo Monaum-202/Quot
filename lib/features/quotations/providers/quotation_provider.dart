@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../data/models/quotation_model.dart';
-import '../data/repositories/quotation_repository.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_model.dart';
+import 'package:invoice_maker/features/quotations/data/repositories/quotation_repository.dart';
 
 part 'quotation_provider.g.dart';
 
@@ -9,7 +9,7 @@ class Quotations extends _$Quotations {
   late final QuotationRepository _repository;
 
   @override
-  Future<List<QuotationModel>> build() async {
+  FutureOr<List<QuotationModel>> build() async {
     _repository = QuotationRepository();
     return _repository.getAllQuotations();
   }

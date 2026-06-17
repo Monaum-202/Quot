@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/models/quotation_status.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
 
 class StatusBadge extends StatelessWidget {
   final QuotationStatus status;

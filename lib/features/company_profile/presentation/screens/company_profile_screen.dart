@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import '../providers/company_provider.dart';
-import '../../data/models/company_model.dart';
-import '../widgets/logo_picker_widget.dart';
+import 'package:invoice_maker/features/company_profile/providers/company_provider.dart';
+import 'package:invoice_maker/features/company_profile/data/models/company_model.dart';
+import 'package:invoice_maker/features/company_profile/presentation/widgets/logo_picker_widget.dart';
 
 class CompanyProfileScreen extends ConsumerStatefulWidget {
   const CompanyProfileScreen({super.key});
@@ -27,6 +27,9 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
   @override
   void initState() {
     super.initState();
+    // Using Future.microtask or similar to access ref in initState if needed,
+    // but better to do it in build or use a provider.
+    // However, here we just want initial values.
     final company = ref.read(companyProvider);
     _nameController = TextEditingController(text: company?.name);
     _ownerController = TextEditingController(text: company?.ownerName);

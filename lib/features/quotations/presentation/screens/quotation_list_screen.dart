@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:gap/gap.dart';
-import '../../../../core/widgets/empty_state_widget.dart';
-import '../data/models/quotation_model.dart';
-import '../data/models/quotation_status.dart';
-import '../providers/quotation_provider.dart';
-import '../widgets/status_badge.dart';
+import 'package:invoice_maker/core/constants/hive_box_names.dart';
+import 'package:invoice_maker/core/widgets/empty_state_widget.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_model.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
+import 'package:invoice_maker/features/quotations/providers/quotation_provider.dart';
+import 'package:invoice_maker/features/quotations/presentation/widgets/status_badge.dart';
 import 'create_quotation_screen.dart';
 import 'quotation_preview_screen.dart';
 

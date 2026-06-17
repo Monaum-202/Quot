@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../data/models/invoice_model.dart';
-import '../data/repositories/invoice_repository.dart';
+import 'package:invoice_maker/features/invoices/data/models/invoice_model.dart';
+import 'package:invoice_maker/features/invoices/data/repositories/invoice_repository.dart';
 
 part 'invoice_provider.g.dart';
 
@@ -9,7 +9,7 @@ class Invoices extends _$Invoices {
   late final InvoiceRepository _repository;
 
   @override
-  Future<List<InvoiceModel>> build() async {
+  FutureOr<List<InvoiceModel>> build() async {
     _repository = InvoiceRepository();
     return _repository.getAllInvoices();
   }

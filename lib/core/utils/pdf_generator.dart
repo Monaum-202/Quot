@@ -193,7 +193,6 @@ class PdfGenerator {
             pw.Text('Customer Signature'),
           ],
         ),
-// ...
         pw.Column(
           children: [
             pw.Container(width: 120, height: 40, decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide()))),

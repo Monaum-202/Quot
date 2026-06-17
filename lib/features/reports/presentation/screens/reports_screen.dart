@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import '../../quotations/providers/quotation_provider.dart';
-import '../../invoices/providers/invoice_provider.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../quotations/data/models/quotation_status.dart';
+import 'package:invoice_maker/features/quotations/providers/quotation_provider.dart';
+import 'package:invoice_maker/features/invoices/providers/invoice_provider.dart';
+import 'package:invoice_maker/core/utils/currency_formatter.dart';
+import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
 
 class ReportsScreen extends ConsumerWidget {
   const ReportsScreen({super.key});

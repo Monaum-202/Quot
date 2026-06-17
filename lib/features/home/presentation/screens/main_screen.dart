@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../quotations/presentation/screens/quotation_list_screen.dart';
-import '../../customers/presentation/screens/customer_list_screen.dart';
-import '../../company_profile/presentation/screens/company_profile_screen.dart';
-import '../../reports/presentation/screens/reports_screen.dart';
+import 'package:invoice_maker/features/quotations/presentation/screens/quotation_list_screen.dart';
+import 'package:invoice_maker/features/customers/presentation/screens/customer_list_screen.dart';
+import 'package:invoice_maker/features/reports/presentation/screens/reports_screen.dart';
 import 'dashboard_screen.dart';
 
 class MainScreen extends StatefulWidget {

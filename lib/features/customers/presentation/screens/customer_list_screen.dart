@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../../../core/widgets/empty_state_widget.dart';
-import '../../data/models/customer_model.dart';
-import '../widgets/customer_card.dart';
+import 'package:invoice_maker/core/constants/hive_box_names.dart';
+import 'package:invoice_maker/core/widgets/empty_state_widget.dart';
+import 'package:invoice_maker/features/customers/data/models/customer_model.dart';
+import 'package:invoice_maker/features/customers/presentation/widgets/customer_card.dart';
 import 'package:uuid/uuid.dart';
 
 class CustomerListScreen extends ConsumerStatefulWidget {
@@ -33,11 +34,13 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
       builder: (context) => Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.only(
+          top: 16.0,
+          left: 16.0,
+          right: 16.0,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +92,6 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
               },
               child: Text(isEditing ? 'UPDATE' : 'SAVE'),
             ),
-            const SizedBox(height: 16),
           ],
         ),
       ),
