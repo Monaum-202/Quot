@@ -32,6 +32,10 @@ class PdfGenerator {
           _buildTable(q),
           pw.SizedBox(height: 20),
           _buildTotals(q, company),
+          if (q.conditions.isNotEmpty) ...[
+            pw.SizedBox(height: 20),
+            _buildConditions(q),
+          ],
           if (q.notes != null && q.notes!.isNotEmpty) ...[
             pw.SizedBox(height: 20),
             pw.Text('Notes:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
@@ -211,6 +215,26 @@ class PdfGenerator {
           ],
         ),
       ),
+    );
+  }
+
+  static pw.Widget _buildConditions(QuotationModel q) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text('Terms & Conditions:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+        pw.SizedBox(height: 8),
+        ...q.conditions.map((condition) => pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('• ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  pw.Expanded(child: pw.Text(condition, style: const pw.TextStyle(fontSize: 10))),
+                ],
+              ),
+            )),
+      ],
     );
   }
 

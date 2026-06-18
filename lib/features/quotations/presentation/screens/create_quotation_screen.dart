@@ -127,6 +127,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       isConvertedToInvoice: false,
       showItemPrices: _showItemPrices,
       manualSubtotal: _customSubtotal,
+      conditions: _conditionControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList(),
     );
 
     await ref.read(quotationsProvider.notifier).saveQuotation(quotation);
@@ -387,6 +388,43 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                   ),
                 ),
               ),
+              const Gap(24),
+              // Conditions Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Conditions', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                    onPressed: _addCondition,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Condition'),
+                  ),
+                ],
+              ),
+              const Divider(),
+              ...List.generate(_conditionControllers.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _conditionControllers[index],
+                          decoration: InputDecoration(
+                            labelText: 'Condition ${index + 1}',
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _removeCondition(index),
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                );
+              }),
               const Gap(24),
               // Notes
               TextFormField(
