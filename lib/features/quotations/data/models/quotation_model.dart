@@ -38,6 +38,8 @@ class QuotationModel extends HiveObject {
   String? pdfPath;
   @HiveField(15)
   bool isConvertedToInvoice;
+  @HiveField(16)
+  bool showItemPrices;
 
   QuotationModel({
     required this.id,
@@ -56,6 +58,7 @@ class QuotationModel extends HiveObject {
     this.signaturePath,
     this.pdfPath,
     this.isConvertedToInvoice = false,
+    this.showItemPrices = true,
   });
 
   double get subtotal => items.fold(0, (sum, item) => sum + item.total);

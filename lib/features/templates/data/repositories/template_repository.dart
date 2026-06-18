@@ -14,6 +14,32 @@ class TemplateRepository {
       final defaultTemplates = [
         TemplateModel(
           id: const Uuid().v4(),
+          name: 'Ducting Normal Work',
+          description: 'Materials for round ducting',
+          defaultItems: [
+            LineItemModel(description: '0.6 SHEET', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'SELECON', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'ELBOW', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'ST ROUND DUCT', quantity: 1, unit: 'pcs', unitPrice: 0),
+          ],
+          createdAt: DateTime.now(),
+        ),
+        TemplateModel(
+          id: const Uuid().v4(),
+          name: 'Ducting & Pipe Cladding',
+          description: 'Aluminum sheet and insulation materials',
+          defaultItems: [
+            LineItemModel(description: 'Aluminum sheet 0.6 mm', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'Grill 18" × 18"', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'Insulation 1" 24kg', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'Silicone', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'Tape abro', quantity: 1, unit: 'pcs', unitPrice: 0),
+            LineItemModel(description: 'Flexible', quantity: 1, unit: 'pcs', unitPrice: 0),
+          ],
+          createdAt: DateTime.now(),
+        ),
+        TemplateModel(
+          id: const Uuid().v4(),
           name: 'House Construction',
           description: 'Basic foundation to roofing',
           defaultItems: [

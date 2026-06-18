@@ -12,6 +12,8 @@ import 'package:invoice_maker/features/quotations/data/models/line_item_model.da
 import 'package:invoice_maker/features/quotations/data/models/quotation_status.dart';
 import 'package:invoice_maker/features/quotations/providers/quotation_provider.dart';
 import 'package:invoice_maker/features/quotations/presentation/widgets/line_item_row.dart';
+import 'package:invoice_maker/features/company_profile/providers/company_provider.dart';
+import 'package:invoice_maker/core/utils/currency_formatter.dart';
 import 'quotation_preview_screen.dart';
 
 class CreateQuotationScreen extends ConsumerStatefulWidget {
@@ -34,6 +36,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
 
   double _discountAmount = 0;
   double _taxPercent = 0;
+  bool _showItemPrices = true;
 
   void _addItem() {
     setState(() {
@@ -97,6 +100,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       validUntil: _validUntil,
       photoPaths: [],
       isConvertedToInvoice: false,
+      showItemPrices: _showItemPrices,
     );
 
     await ref.read(quotationsProvider.notifier).saveQuotation(quotation);
@@ -179,7 +183,16 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                   child: Text(DateFormatter.format(_validUntil)),
                 ),
               ),
-              const Gap(32),
+              const Gap(16),
+              // Show Item Prices Toggle
+              SwitchListTile(
+                title: const Text('Show Item Prices in PDF'),
+                subtitle: const Text('If off, will show as "Lump Sum" (no individual prices)'),
+                value: _showItemPrices,
+                onChanged: (v) => setState(() => _showItemPrices = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const Gap(16),
               // Line Items Section Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -346,6 +359,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   }
 
   Widget _summaryRow(String label, double value, {bool isBold = false}) {
+    final company = ref.watch(companyProvider);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -357,7 +371,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
           ),
         ),
         Text(
-          '৳${value.toStringAsFixed(2)}',
+          CurrencyFormatter.format(value, symbol: company?.currency ?? 'SR'),
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : null,
             fontSize: isBold ? 20 : 16,

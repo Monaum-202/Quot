@@ -31,7 +31,7 @@ class PdfGenerator {
           pw.SizedBox(height: 20),
           _buildTable(q),
           pw.SizedBox(height: 20),
-          _buildTotals(q),
+          _buildTotals(q, company),
           if (q.notes != null && q.notes!.isNotEmpty) ...[
             pw.SizedBox(height: 20),
             pw.Text('Notes:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
@@ -108,6 +108,33 @@ class PdfGenerator {
   }
 
   static pw.Widget _buildTable(QuotationModel q) {
+    if (!q.showItemPrices) {
+      final headers = ['#', 'Description', 'Qty', 'Unit'];
+      final data = List.generate(q.items.length, (index) {
+        final item = q.items[index];
+        return [
+          '${index + 1}',
+          item.description,
+          '${item.quantity}',
+          item.unit,
+        ];
+      });
+
+      return pw.TableHelper.fromTextArray(
+        headers: headers,
+        data: data,
+        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+        headerDecoration: const pw.BoxDecoration(color: PdfColors.blue800),
+        cellAlignment: pw.Alignment.centerLeft,
+        columnWidths: {
+          0: const pw.FixedColumnWidth(30),
+          1: const pw.FlexColumnWidth(),
+          2: const pw.FixedColumnWidth(40),
+          3: const pw.FixedColumnWidth(40),
+        },
+      );
+    }
+
     final headers = ['#', 'Description', 'Qty', 'Unit', 'Price', 'Total'];
     final data = List.generate(q.items.length, (index) {
       final item = q.items[index];
@@ -141,32 +168,48 @@ class PdfGenerator {
     );
   }
 
-  static pw.Widget _buildTotals(QuotationModel q) {
+  static pw.Widget _buildTotals(QuotationModel q, CompanyModel? company) {
+    final currency = company?.currency ?? 'SR';
+    if (!q.showItemPrices) {
+      return pw.Container(
+        alignment: pw.Alignment.centerLeft,
+        padding: const pw.EdgeInsets.only(top: 20),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('Price:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text('Total amount ${CurrencyFormatter.format(q.grandTotal, symbol: currency)} (LUMSAM)', 
+              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+          ],
+        ),
+      );
+    }
+
     return pw.Container(
       alignment: pw.Alignment.centerRight,
       child: pw.SizedBox(
         width: 200,
         child: pw.Column(
           children: [
-            _totalRow('Subtotal', q.subtotal),
-            if (q.discountAmount > 0) _totalRow('Discount', -q.discountAmount),
-            if (q.taxPercent > 0) _totalRow('Tax (${q.taxPercent}%)', q.subtotal * q.taxPercent / 100),
+            _totalRow('Subtotal', q.subtotal, currency),
+            if (q.discountAmount > 0) _totalRow('Discount', -q.discountAmount, currency),
+            if (q.taxPercent > 0) _totalRow('Tax (${q.taxPercent}%)', q.subtotal * q.taxPercent / 100, currency),
             pw.Divider(),
-            _totalRow('Grand Total', q.grandTotal, isBold: true),
+            _totalRow('Grand Total', q.grandTotal, currency, isBold: true),
           ],
         ),
       ),
     );
   }
 
-  static pw.Widget _totalRow(String label, double value, {bool isBold = false}) {
+  static pw.Widget _totalRow(String label, double value, String currency, {bool isBold = false}) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 2),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(label, style: isBold ? pw.TextStyle(fontWeight: pw.FontWeight.bold) : null),
-          pw.Text(CurrencyFormatter.format(value), style: isBold ? pw.TextStyle(fontWeight: pw.FontWeight.bold) : null),
+          pw.Text(CurrencyFormatter.format(value, symbol: currency), style: isBold ? pw.TextStyle(fontWeight: pw.FontWeight.bold) : null),
         ],
       ),
     );
