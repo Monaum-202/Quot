@@ -36,12 +36,36 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
 
   double _discountAmount = 0;
   double _taxPercent = 0;
-  bool _showItemPrices = true;
+  bool _showItemPrices = false;
   double? _customSubtotal;
+  final List<TextEditingController> _conditionControllers = [TextEditingController()];
+
+  @override
+  void dispose() {
+    _projectNameController.dispose();
+    _notesController.dispose();
+    for (var c in _conditionControllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
 
   void _addItem() {
     setState(() {
       _items.add(LineItemModel(description: '', quantity: 1, unit: 'pcs', unitPrice: 0));
+    });
+  }
+
+  void _addCondition() {
+    setState(() {
+      _conditionControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeCondition(int index) {
+    setState(() {
+      _conditionControllers[index].dispose();
+      _conditionControllers.removeAt(index);
     });
   }
 
