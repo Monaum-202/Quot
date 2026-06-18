@@ -103,6 +103,7 @@ class QuotationPreviewScreen extends ConsumerWidget {
             },
             label: const Text('CONVERT TO INVOICE'),
             icon: const Icon(Icons.receipt_long),
+            heroTag: null,
           ),
     );
   }

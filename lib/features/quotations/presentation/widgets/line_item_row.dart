@@ -22,123 +22,117 @@ class LineItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSmallScreen = MediaQuery.of(context).size.width < 360;
-
-    if (isSmallScreen) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: item.description,
-                      decoration: const InputDecoration(hintText: 'Description'),
-                      onChanged: onDescriptionChanged,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: onDelete,
-                  ),
-                ],
-              ),
-              const Gap(8),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 60,
-                    child: TextFormField(
-                      initialValue: item.quantity.toString(),
-                      decoration: const InputDecoration(hintText: 'Qty'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (v) => onQuantityChanged(double.tryParse(v) ?? 0),
-                    ),
-                  ),
-                  const Gap(8),
-                  SizedBox(
-                    width: 80,
-                    child: DropdownButtonFormField<String>(
-                      value: item.unit,
-                      items: ['sqft', 'rft', 'job', 'pcs', 'kg', 'bag', 'day', 'hour', 'ls']
-                          .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                          .toList(),
-                      onChanged: (v) => onUnitChanged(v ?? 'pcs'),
-                      decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 8)),
-                    ),
-                  ),
-                  const Gap(8),
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: item.unitPrice.toString(),
-                      decoration: const InputDecoration(hintText: 'Price'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (v) => onPriceChanged(double.tryParse(v) ?? 0),
-                    ),
-                  ),
-                  const Gap(8),
-                  Text('৳${item.total.toStringAsFixed(0)}'),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: TextFormField(
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Line 1: Description
+            TextFormField(
               initialValue: item.description,
-              decoration: const InputDecoration(hintText: 'Description'),
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'e.g. Interior Painting',
+                isDense: true,
+                border: OutlineInputBorder(),
+              ),
               onChanged: onDescriptionChanged,
             ),
-          ),
-          const Gap(4),
-          SizedBox(
-            width: 50,
-            child: TextFormField(
-              initialValue: item.quantity.toString(),
-              decoration: const InputDecoration(hintText: 'Qty'),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => onQuantityChanged(double.tryParse(v) ?? 0),
+            const Gap(12),
+            // Line 2: Quantity, Unit, and Calculated Amount
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    initialValue: item.quantity > 0 ? item.quantity.toString() : '',
+                    decoration: const InputDecoration(
+                      labelText: 'Qty',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (v) => onQuantityChanged(double.tryParse(v) ?? 0),
+                  ),
+                ),
+                const Gap(8),
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    value: item.unit,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Unit',
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ['sqft', 'rft', 'job', 'pcs', 'kg', 'bag', 'day', 'hour', 'ls']
+                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                        .toList(),
+                    onChanged: (v) => onUnitChanged(v ?? 'pcs'),
+                  ),
+                ),
+                const Gap(8),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50.withOpacity(0.3),
+                      border: Border.all(color: Colors.blue.shade100),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text('Amount', style: TextStyle(fontSize: 10, color: Colors.blueGrey)),
+                        FittedBox(
+                          child: Text(
+                            '৳${item.total.toStringAsFixed(2)}',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const Gap(4),
-          SizedBox(
-            width: 70,
-            child: DropdownButtonFormField<String>(
-              value: item.unit,
-              items: ['sqft', 'rft', 'job', 'pcs', 'kg', 'bag', 'day', 'hour', 'ls']
-                  .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                  .toList(),
-              onChanged: (v) => onUnitChanged(v ?? 'pcs'),
-              decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 4)),
+            const Gap(12),
+            // Line 3: Unit Price and Delete
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    initialValue: item.unitPrice > 0 ? item.unitPrice.toString() : '',
+                    decoration: const InputDecoration(
+                      labelText: 'Unit Price',
+                      prefixText: '৳',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (v) => onPriceChanged(double.tryParse(v) ?? 0),
+                  ),
+                ),
+                const Gap(12),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  tooltip: 'Remove Item',
+                ),
+              ],
             ),
-          ),
-          const Gap(4),
-          Expanded(
-            flex: 2,
-            child: TextFormField(
-              initialValue: item.unitPrice.toString(),
-              decoration: const InputDecoration(hintText: 'Price'),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => onPriceChanged(double.tryParse(v) ?? 0),
-            ),
-          ),
-          const Gap(4),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-            onPressed: onDelete,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

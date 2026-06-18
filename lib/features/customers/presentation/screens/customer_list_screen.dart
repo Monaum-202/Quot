@@ -161,6 +161,7 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'customer_list_fab',
         onPressed: () => _showAddCustomerSheet(),
         child: const Icon(Icons.add),
       ),

@@ -43,6 +43,10 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
 
   void _loadTemplate() {
     final templates = ref.read(templatesProvider);
+    if (templates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No templates found')));
+      return;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView.builder(
@@ -132,23 +136,31 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Customer Selector
+              // Customer Selection
               DropdownButtonFormField<CustomerModel>(
                 value: _selectedCustomer,
-                decoration: const InputDecoration(labelText: 'Select Customer'),
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Select Customer',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
                 items: customers.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
                 onChanged: (v) => setState(() => _selectedCustomer = v),
               ),
               const Gap(16),
+              // Project Name
               TextFormField(
                 controller: _projectNameController,
-                decoration: const InputDecoration(labelText: 'Project Name'),
+                decoration: const InputDecoration(
+                  labelText: 'Project Name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.work_outline),
+                ),
               ),
               const Gap(16),
-              ListTile(
-                title: const Text('Valid Until'),
-                subtitle: Text(DateFormatter.format(_validUntil)),
-                trailing: const Icon(Icons.calendar_today),
+              // Date Selection
+              InkWell(
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
@@ -158,97 +170,174 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                   );
                   if (picked != null) setState(() => _validUntil = picked);
                 },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Valid Until',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                  child: Text(DateFormatter.format(_validUntil)),
+                ),
               ),
-              const Gap(24),
+              const Gap(32),
+              // Line Items Section Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Line Items', style: Theme.of(context).textTheme.titleMedium),
-                  IconButton(onPressed: _addItem, icon: const Icon(Icons.add_circle, color: Colors.blue)),
+                  Text('Line Items', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                    onPressed: _loadTemplate,
+                    icon: const Icon(Icons.copy_all),
+                    label: const Text('From Template'),
+                  ),
                 ],
               ),
               const Divider(),
+              const Gap(16),
+              // Line Items List
               ...List.generate(_items.length, (index) {
                 return LineItemRow(
+                  key: ValueKey('item_${index}_${_items.length}'), // Basic key to help with list state
                   item: _items[index],
-                  onDelete: () => setState(() => _items.removeAt(index)),
+                  onDelete: () => setState(() {
+                    if (_items.length > 1) {
+                      _items.removeAt(index);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('At least one item is required')),
+                      );
+                    }
+                  }),
                   onDescriptionChanged: (v) => _items[index].description = v,
                   onQuantityChanged: (v) => setState(() => _items[index].quantity = v),
                   onUnitChanged: (v) => _items[index].unit = v,
                   onPriceChanged: (v) => setState(() => _items[index].unitPrice = v),
                 );
               }),
-              const Gap(24),
-              // Summary
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    _summaryRow('Subtotal', subtotal),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Discount'),
-                        SizedBox(
-                          width: 100,
-                          child: TextFormField(
-                            initialValue: _discountAmount.toString(),
-                            decoration: const InputDecoration(prefixText: '৳'),
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) => setState(() => _discountAmount = double.tryParse(v) ?? 0),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Tax (%)'),
-                        SizedBox(
-                          width: 100,
-                          child: TextFormField(
-                            initialValue: _taxPercent.toString(),
-                            decoration: const InputDecoration(suffixText: '%'),
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) => setState(() => _taxPercent = double.tryParse(v) ?? 0),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 32),
-                    _summaryRow('Grand Total', grandTotal, isBold: true),
-                  ],
+              const Gap(8),
+              // Add Item Button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _addItem,
+                  icon: const Icon(Icons.add),
+                  label: const Text('ADD LINE ITEM'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
                 ),
               ),
-              const Gap(16),
+              const Gap(32),
+              // Calculation Summary Section
+              Card(
+                elevation: 0,
+                color: Colors.blueGrey.shade50,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.blueGrey.shade100),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Summary',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const Gap(16),
+                      _summaryRow('Subtotal', subtotal),
+                      const Gap(12),
+                      // Discount Field
+                      Row(
+                        children: [
+                          const Expanded(child: Text('Discount')),
+                          SizedBox(
+                            width: 140,
+                            child: TextFormField(
+                              initialValue: _discountAmount > 0 ? _discountAmount.toString() : '',
+                              textAlign: TextAlign.end,
+                              decoration: const InputDecoration(
+                                prefixText: '৳',
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                border: OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.white,
+                              ),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (v) => setState(() => _discountAmount = double.tryParse(v) ?? 0),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(12),
+                      // Tax Field
+                      Row(
+                        children: [
+                          const Expanded(child: Text('Tax')),
+                          SizedBox(
+                            width: 140,
+                            child: TextFormField(
+                              initialValue: _taxPercent > 0 ? _taxPercent.toString() : '',
+                              textAlign: TextAlign.end,
+                              decoration: const InputDecoration(
+                                suffixText: '%',
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                border: OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.white,
+                              ),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (v) => setState(() => _taxPercent = double.tryParse(v) ?? 0),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32),
+                      _summaryRow('Grand Total', grandTotal, isBold: true),
+                    ],
+                  ),
+                ),
+              ),
+              const Gap(24),
+              // Notes
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(labelText: 'Notes / Terms'),
+                decoration: const InputDecoration(
+                  labelText: 'Notes / Terms',
+                  border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
                 maxLines: 3,
               ),
               const Gap(32),
+              // Action Buttons
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _saveQuotation(QuotationStatus.draft),
-                      child: const Text('SAVE AS DRAFT'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('SAVE DRAFT'),
                     ),
                   ),
                   const Gap(16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => _saveQuotation(QuotationStatus.sent, showPreview: true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                       child: const Text('PREVIEW PDF'),
                     ),
                   ),
                 ],
               ),
+              const Gap(24),
             ],
           ),
         ),
@@ -257,18 +346,25 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   }
 
   Widget _summaryRow(String label, double value, {bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : null)),
-          Text(
-            '৳${value.toStringAsFixed(2)}',
-            style: TextStyle(fontWeight: isBold ? FontWeight.bold : null, fontSize: isBold ? 18 : null),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : null,
+            fontSize: isBold ? 16 : null,
           ),
-        ],
-      ),
+        ),
+        Text(
+          '৳${value.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontWeight: isBold ? FontWeight.bold : null,
+            fontSize: isBold ? 20 : 16,
+            color: isBold ? Colors.blue.shade800 : null,
+          ),
+        ),
+      ],
     );
   }
 }

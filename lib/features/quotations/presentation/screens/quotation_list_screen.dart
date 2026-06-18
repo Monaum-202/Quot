@@ -100,6 +100,7 @@ class QuotationListScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'quotation_list_fab',
         onPressed: () {
           Navigator.push(
             context,
