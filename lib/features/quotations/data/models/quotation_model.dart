@@ -40,6 +40,8 @@ class QuotationModel extends HiveObject {
   bool isConvertedToInvoice;
   @HiveField(16)
   bool showItemPrices;
+  @HiveField(17)
+  double? manualSubtotal;
 
   QuotationModel({
     required this.id,
@@ -59,9 +61,10 @@ class QuotationModel extends HiveObject {
     this.pdfPath,
     this.isConvertedToInvoice = false,
     this.showItemPrices = true,
+    this.manualSubtotal,
   });
 
-  double get subtotal => items.fold(0, (sum, item) => sum + item.total);
+  double get subtotal => manualSubtotal ?? items.fold(0, (sum, item) => sum + item.total);
   double get grandTotal =>
       subtotal - discountAmount + (subtotal * taxPercent / 100);
 }

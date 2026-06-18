@@ -37,6 +37,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   double _discountAmount = 0;
   double _taxPercent = 0;
   bool _showItemPrices = true;
+  double? _customSubtotal;
 
   void _addItem() {
     setState(() {
@@ -101,6 +102,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       photoPaths: [],
       isConvertedToInvoice: false,
       showItemPrices: _showItemPrices,
+      manualSubtotal: _customSubtotal,
     );
 
     await ref.read(quotationsProvider.notifier).saveQuotation(quotation);
@@ -120,7 +122,8 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   @override
   Widget build(BuildContext context) {
     final customers = ref.watch(customersProvider);
-    final subtotal = _items.fold(0.0, (sum, item) => sum + item.total);
+    final calculatedSubtotal = _items.fold(0.0, (sum, item) => sum + item.total);
+    final subtotal = _customSubtotal ?? calculatedSubtotal;
     final grandTotal = subtotal - _discountAmount + (subtotal * _taxPercent / 100);
 
     return Scaffold(
@@ -212,6 +215,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                 return LineItemRow(
                   key: ValueKey('item_${index}_${_items.length}'), // Basic key to help with list state
                   item: _items[index],
+                  showPrices: _showItemPrices,
                   onDelete: () => setState(() {
                     if (_items.length > 1) {
                       _items.removeAt(index);
@@ -254,12 +258,57 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Summary',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _showItemPrices ? 'Summary' : 'Summary (Lump Sum Mode)',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: _showItemPrices ? null : Colors.blue.shade900,
+                              ),
+                            ),
+                          ),
+                          if (!_showItemPrices)
+                            const Icon(Icons.info_outline, size: 16, color: Colors.blueGrey),
+                        ],
                       ),
                       const Gap(16),
-                      _summaryRow('Subtotal', subtotal),
+                      // Subtotal / Base Price Input
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _showItemPrices ? 'Subtotal (Auto)' : 'Manual Work Cost',
+                              style: TextStyle(fontWeight: _showItemPrices ? null : FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 140,
+                            child: TextFormField(
+                              key: ValueKey('subtotal_${_customSubtotal == null}'),
+                              initialValue: subtotal > 0 ? subtotal.toString() : '',
+                              textAlign: TextAlign.end,
+                              decoration: InputDecoration(
+                                prefixText: '৳',
+                                isDense: true,
+                                helperText: _showItemPrices ? 'Calculated from items' : 'Type total price here',
+                                helperStyle: const TextStyle(fontSize: 10),
+                                border: const OutlineInputBorder(),
+                                filled: true,
+                                fillColor: _showItemPrices ? Colors.grey.shade100 : Colors.white,
+                              ),
+                              enabled: !_showItemPrices, // Only editable in Lump Sum mode
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (v) {
+                                setState(() {
+                                  _customSubtotal = double.tryParse(v);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                       const Gap(12),
                       // Discount Field
                       Row(

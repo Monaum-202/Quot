@@ -171,17 +171,29 @@ class PdfGenerator {
   static pw.Widget _buildTotals(QuotationModel q, CompanyModel? company) {
     final currency = company?.currency ?? 'SR';
     if (!q.showItemPrices) {
-      return pw.Container(
-        alignment: pw.Alignment.centerLeft,
-        padding: const pw.EdgeInsets.only(top: 20),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text('Price:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-            pw.Text('Total amount ${CurrencyFormatter.format(q.grandTotal, symbol: currency)} (LUMSAM)', 
-              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
-          ],
-        ),
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Divider(),
+          pw.SizedBox(height: 10),
+          pw.Container(
+            padding: const pw.EdgeInsets.all(12),
+            decoration: const pw.BoxDecoration(
+              color: PdfColors.grey200,
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text('Overall Work Cost:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                pw.Text(CurrencyFormatter.format(q.grandTotal, symbol: currency), 
+                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900)),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 5),
+          pw.Text('Note: Above cost is inclusive of all items listed in the table.', 
+            style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+        ],
       );
     }
 

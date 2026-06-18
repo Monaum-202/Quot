@@ -33,13 +33,15 @@ class QuotationModelAdapter extends TypeAdapter<QuotationModel> {
       signaturePath: fields[13] as String?,
       pdfPath: fields[14] as String?,
       isConvertedToInvoice: fields[15] as bool,
+      showItemPrices: fields[16] as bool,
+      manualSubtotal: fields[17] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, QuotationModel obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -71,7 +73,11 @@ class QuotationModelAdapter extends TypeAdapter<QuotationModel> {
       ..writeByte(14)
       ..write(obj.pdfPath)
       ..writeByte(15)
-      ..write(obj.isConvertedToInvoice);
+      ..write(obj.isConvertedToInvoice)
+      ..writeByte(16)
+      ..write(obj.showItemPrices)
+      ..writeByte(17)
+      ..write(obj.manualSubtotal);
   }
 
   @override

@@ -9,6 +9,7 @@ class LineItemRow extends StatelessWidget {
   final Function(double) onQuantityChanged;
   final Function(String) onUnitChanged;
   final Function(double) onPriceChanged;
+  final bool showPrices;
 
   const LineItemRow({
     super.key,
@@ -18,6 +19,7 @@ class LineItemRow extends StatelessWidget {
     required this.onQuantityChanged,
     required this.onUnitChanged,
     required this.onPriceChanged,
+    this.showPrices = true,
   });
 
   @override
@@ -34,23 +36,34 @@ class LineItemRow extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Line 1: Description
-            TextFormField(
-              initialValue: item.description,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'e.g. Interior Painting',
-                isDense: true,
-                border: OutlineInputBorder(),
-              ),
-              onChanged: onDescriptionChanged,
-            ),
-            const Gap(12),
-            // Line 2: Quantity, Unit, and Calculated Amount
+            // Line 1: Description and Delete
             Row(
               children: [
                 Expanded(
-                  flex: 2,
+                  child: TextFormField(
+                    initialValue: item.description,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'e.g. Interior Painting',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: onDescriptionChanged,
+                  ),
+                ),
+                const Gap(8),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  tooltip: 'Remove Item',
+                ),
+              ],
+            ),
+            const Gap(12),
+            // Line 2: Quantity and Unit
+            Row(
+              children: [
+                Expanded(
                   child: TextFormField(
                     initialValue: item.quantity > 0 ? item.quantity.toString() : '',
                     decoration: const InputDecoration(
@@ -64,7 +77,6 @@ class LineItemRow extends StatelessWidget {
                 ),
                 const Gap(8),
                 Expanded(
-                  flex: 2,
                   child: DropdownButtonFormField<String>(
                     value: item.unit,
                     isExpanded: true,
@@ -80,54 +92,51 @@ class LineItemRow extends StatelessWidget {
                     onChanged: (v) => onUnitChanged(v ?? 'pcs'),
                   ),
                 ),
-                const Gap(8),
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50.withOpacity(0.3),
-                      border: Border.all(color: Colors.blue.shade100),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text('Amount', style: TextStyle(fontSize: 10, color: Colors.blueGrey)),
-                        FittedBox(
-                          child: Text(
-                            '৳${item.total.toStringAsFixed(2)}',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
             const Gap(12),
-            // Line 3: Unit Price and Delete
+            // Line 3: Unit Price and Total (Internal/Public)
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
                     initialValue: item.unitPrice > 0 ? item.unitPrice.toString() : '',
-                    decoration: const InputDecoration(
-                      labelText: 'Unit Price',
+                    decoration: InputDecoration(
+                      labelText: showPrices ? 'Unit Price' : 'Price (Internal)',
+                      helperText: showPrices ? null : 'Hidden in PDF',
                       prefixText: '৳',
                       isDense: true,
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (v) => onPriceChanged(double.tryParse(v) ?? 0),
                   ),
                 ),
-                const Gap(12),
-                IconButton(
-                  onPressed: onDelete,
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  tooltip: 'Remove Item',
+                const Gap(8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: showPrices ? Colors.blue.shade50.withOpacity(0.3) : Colors.grey.shade50,
+                      border: Border.all(color: showPrices ? Colors.blue.shade100 : Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(showPrices ? 'Total' : 'Internal Total', style: const TextStyle(fontSize: 10, color: Colors.blueGrey)),
+                        FittedBox(
+                          child: Text(
+                            '৳${item.total.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              color: showPrices ? Colors.blue.shade900 : Colors.blueGrey.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
