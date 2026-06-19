@@ -44,6 +44,8 @@ class QuotationModel extends HiveObject {
   double? manualSubtotal;
   @HiveField(18)
   List<String> conditions;
+  @HiveField(19)
+  int validityDays;
 
   QuotationModel({
     required this.id,
@@ -65,6 +67,7 @@ class QuotationModel extends HiveObject {
     this.showItemPrices = true,
     this.manualSubtotal,
     this.conditions = const [],
+    this.validityDays = 10,
   });
 
   double get subtotal => manualSubtotal ?? items.fold(0, (sum, item) => sum + item.total);

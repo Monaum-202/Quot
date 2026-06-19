@@ -30,6 +30,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   final _projectNameController = TextEditingController();
   final _notesController = TextEditingController();
   DateTime _validUntil = DateTime.now().add(const Duration(days: 30));
+  int _validityDays = 10;
 
   List<LineItemModel> _items = [
     LineItemModel(description: '', quantity: 1, unit: 'pcs', unitPrice: 0),
@@ -54,6 +55,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       _taxPercent = q.taxPercent;
       _showItemPrices = q.showItemPrices;
       _customSubtotal = q.manualSubtotal;
+      _validityDays = q.validityDays;
       
       _conditionControllers = q.conditions.isEmpty 
           ? [TextEditingController()] 
@@ -161,6 +163,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       showItemPrices: _showItemPrices,
       manualSubtotal: _customSubtotal,
       conditions: _conditionControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList(),
+      validityDays: _validityDays,
     );
 
     await ref.read(quotationsProvider.notifier).saveQuotation(quotation);
@@ -237,12 +240,29 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                 },
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: 'Valid Until',
+                    labelText: 'Valid Until Date',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.calendar_today_outlined),
                   ),
                   child: Text(DateFormatter.format(_validUntil)),
                 ),
+              ),
+              const Gap(16),
+              // Validity Days Input
+              TextFormField(
+                initialValue: _validityDays.toString(),
+                decoration: const InputDecoration(
+                  labelText: 'Validity Period (Days)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.timer_outlined),
+                  helperText: 'Default is 10 days',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (v) {
+                  setState(() {
+                    _validityDays = int.tryParse(v) ?? 10;
+                  });
+                },
               ),
               const Gap(16),
               // Show Item Prices Toggle

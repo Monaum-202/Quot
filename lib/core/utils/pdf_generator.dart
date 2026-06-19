@@ -153,9 +153,8 @@ class PdfGenerator {
   }
 
   static pw.Widget _buildValidityText(QuotationModel q) {
-    final difference = q.validUntil.difference(q.createdAt).inDays;
     return pw.Text(
-      'This offer is valid $difference days from the date of quotation.',
+      'This offer is valid ${q.validityDays} days from the date of quotation.',
       style: pw.TextStyle(fontSize: 11),
     );
   }
