@@ -14,6 +14,7 @@ import 'package:invoice_maker/features/quotations/providers/quotation_provider.d
 import 'package:invoice_maker/features/invoices/data/models/invoice_model.dart';
 import 'package:invoice_maker/features/invoices/providers/invoice_provider.dart';
 import 'signature_screen.dart';
+import 'create_quotation_screen.dart';
 
 class QuotationPreviewScreen extends ConsumerWidget {
   final QuotationModel quotation;
@@ -28,6 +29,16 @@ class QuotationPreviewScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(quotation.quotationNumber),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit Quotation',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CreateQuotationScreen(quotation: quotation)),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.history_edu),
             tooltip: 'Get Signature',

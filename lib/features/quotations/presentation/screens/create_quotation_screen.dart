@@ -17,7 +17,8 @@ import 'package:invoice_maker/core/utils/currency_formatter.dart';
 import 'quotation_preview_screen.dart';
 
 class CreateQuotationScreen extends ConsumerStatefulWidget {
-  const CreateQuotationScreen({super.key});
+  final QuotationModel? quotation;
+  const CreateQuotationScreen({super.key, this.quotation});
 
   @override
   ConsumerState<CreateQuotationScreen> createState() => _CreateQuotationScreenState();
@@ -30,7 +31,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   final _notesController = TextEditingController();
   DateTime _validUntil = DateTime.now().add(const Duration(days: 30));
 
-  final List<LineItemModel> _items = [
+  List<LineItemModel> _items = [
     LineItemModel(description: '', quantity: 1, unit: 'pcs', unitPrice: 0),
   ];
 
@@ -38,7 +39,39 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   double _taxPercent = 0;
   bool _showItemPrices = false;
   double? _customSubtotal;
-  final List<TextEditingController> _conditionControllers = [TextEditingController()];
+  List<TextEditingController> _conditionControllers = [TextEditingController()];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.quotation != null) {
+      final q = widget.quotation!;
+      _projectNameController.text = q.projectName;
+      _notesController.text = q.notes ?? '';
+      _validUntil = q.validUntil;
+      _items = List.from(q.items);
+      _discountAmount = q.discountAmount;
+      _taxPercent = q.taxPercent;
+      _showItemPrices = q.showItemPrices;
+      _customSubtotal = q.manualSubtotal;
+      
+      _conditionControllers = q.conditions.isEmpty 
+          ? [TextEditingController()] 
+          : q.conditions.map((c) => TextEditingController(text: c)).toList();
+          
+      // Find selected customer
+      Future.microtask(() {
+        final customers = ref.read(customersProvider);
+        setState(() {
+          try {
+            _selectedCustomer = customers.firstWhere((c) => c.id == q.customerId);
+          } catch (_) {
+            _selectedCustomer = null;
+          }
+        });
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -111,8 +144,8 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
     }
 
     final quotation = QuotationModel(
-      id: const Uuid().v4(),
-      quotationNumber: QuotationNumberGen.generate(),
+      id: widget.quotation?.id ?? const Uuid().v4(),
+      quotationNumber: widget.quotation?.quotationNumber ?? QuotationNumberGen.generate(),
       customerId: _selectedCustomer!.id,
       customerName: _selectedCustomer!.name,
       projectName: _projectNameController.text.trim(),
@@ -121,10 +154,10 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       taxPercent: _taxPercent,
       notes: _notesController.text.trim(),
       status: status,
-      createdAt: DateTime.now(),
+      createdAt: widget.quotation?.createdAt ?? DateTime.now(),
       validUntil: _validUntil,
-      photoPaths: [],
-      isConvertedToInvoice: false,
+      photoPaths: widget.quotation?.photoPaths ?? [],
+      isConvertedToInvoice: widget.quotation?.isConvertedToInvoice ?? false,
       showItemPrices: _showItemPrices,
       manualSubtotal: _customSubtotal,
       conditions: _conditionControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList(),

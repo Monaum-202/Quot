@@ -85,10 +85,17 @@ class QuotationListScreen extends ConsumerWidget {
                         ],
                       ),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => QuotationPreviewScreen(quotation: q)),
-                        );
+                        if (q.status == QuotationStatus.draft || q.status == QuotationStatus.sent) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CreateQuotationScreen(quotation: q)),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => QuotationPreviewScreen(quotation: q)),
+                          );
+                        }
                       },
                       onLongPress: () => _showStatusUpdateSheet(context, ref, q),
                     ),
