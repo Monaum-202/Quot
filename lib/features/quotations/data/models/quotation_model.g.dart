@@ -35,13 +35,14 @@ class QuotationModelAdapter extends TypeAdapter<QuotationModel> {
       isConvertedToInvoice: fields[15] as bool,
       showItemPrices: fields[16] as bool,
       manualSubtotal: fields[17] as double?,
+      conditions: (fields[18] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, QuotationModel obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class QuotationModelAdapter extends TypeAdapter<QuotationModel> {
       ..writeByte(16)
       ..write(obj.showItemPrices)
       ..writeByte(17)
-      ..write(obj.manualSubtotal);
+      ..write(obj.manualSubtotal)
+      ..writeByte(18)
+      ..write(obj.conditions);
   }
 
   @override
