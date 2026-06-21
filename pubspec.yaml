@@ -40,6 +40,11 @@ dependencies:
   cached_network_image: ^3.3.1
   gap: ^3.0.1
 
+  # Google Drive Backup
+  google_sign_in: ^6.2.1
+  googleapis: ^13.2.0
+  http: ^1.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
