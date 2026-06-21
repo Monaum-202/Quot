@@ -29,6 +29,9 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   CustomerModel? _selectedCustomer;
   final _projectNameController = TextEditingController();
   final _notesController = TextEditingController();
+  final _subtotalController = TextEditingController();
+  final _discountController = TextEditingController();
+  final _taxController = TextEditingController();
   DateTime _validUntil = DateTime.now().add(const Duration(days: 30));
   int _validityDays = 10;
 
@@ -36,10 +39,10 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
     LineItemModel(description: '', quantity: 1, unit: 'pcs', unitPrice: 0),
   ];
 
-  double _discountAmount = 0;
-  double _taxPercent = 0;
   bool _showItemPrices = false;
   double? _customSubtotal;
+  double _discountAmount = 0;
+  double _taxPercent = 0;
   List<TextEditingController> _conditionControllers = [TextEditingController()];
 
   @override
@@ -56,6 +59,10 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       _showItemPrices = q.showItemPrices;
       _customSubtotal = q.manualSubtotal;
       _validityDays = q.validityDays;
+
+      _discountController.text = _discountAmount > 0 ? _discountAmount.toString() : '';
+      _taxController.text = _taxPercent > 0 ? _taxPercent.toString() : '';
+      _subtotalController.text = _customSubtotal != null ? _customSubtotal.toString() : '';
       
       _conditionControllers = q.conditions.isEmpty 
           ? [TextEditingController()] 
@@ -79,6 +86,9 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   void dispose() {
     _projectNameController.dispose();
     _notesController.dispose();
+    _subtotalController.dispose();
+    _discountController.dispose();
+    _taxController.dispose();
     for (var c in _conditionControllers) {
       c.dispose();
     }
@@ -145,6 +155,10 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       return;
     }
 
+    final manualVal = double.tryParse(_subtotalController.text);
+    final discountVal = double.tryParse(_discountController.text) ?? 0;
+    final taxVal = double.tryParse(_taxController.text) ?? 0;
+
     final quotation = QuotationModel(
       id: widget.quotation?.id ?? const Uuid().v4(),
       quotationNumber: widget.quotation?.quotationNumber ?? QuotationNumberGen.generate(),
@@ -152,8 +166,8 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       customerName: _selectedCustomer!.name,
       projectName: _projectNameController.text.trim(),
       items: List.from(_items),
-      discountAmount: _discountAmount,
-      taxPercent: _taxPercent,
+      discountAmount: discountVal,
+      taxPercent: taxVal,
       notes: _notesController.text.trim(),
       status: status,
       createdAt: widget.quotation?.createdAt ?? DateTime.now(),
@@ -161,7 +175,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
       photoPaths: widget.quotation?.photoPaths ?? [],
       isConvertedToInvoice: widget.quotation?.isConvertedToInvoice ?? false,
       showItemPrices: _showItemPrices,
-      manualSubtotal: _customSubtotal,
+      manualSubtotal: _showItemPrices ? null : manualVal,
       conditions: _conditionControllers.map((c) => c.text.trim()).where((t) => t.isNotEmpty).toList(),
       validityDays: _validityDays,
     );
@@ -184,8 +198,15 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
   Widget build(BuildContext context) {
     final customers = ref.watch(customersProvider);
     final calculatedSubtotal = _items.fold(0.0, (sum, item) => sum + item.total);
-    final subtotal = _customSubtotal ?? calculatedSubtotal;
-    final grandTotal = subtotal - _discountAmount + (subtotal * _taxPercent / 100);
+    
+    // We need to decide which subtotal to use for the grand total display in real-time
+    final currentManualSubtotal = double.tryParse(_subtotalController.text);
+    final subtotal = _showItemPrices ? calculatedSubtotal : (currentManualSubtotal ?? 0);
+    
+    final currentDiscount = double.tryParse(_discountController.text) ?? 0;
+    final currentTaxPercent = double.tryParse(_taxController.text) ?? 0;
+    
+    final grandTotal = subtotal - currentDiscount + (subtotal * currentTaxPercent / 100);
 
     return Scaffold(
       appBar: AppBar(
@@ -270,7 +291,16 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                 title: const Text('Show Item Prices in PDF'),
                 subtitle: const Text('If off, will show as "Lump Sum" (no individual prices)'),
                 value: _showItemPrices,
-                onChanged: (v) => setState(() => _showItemPrices = v),
+                onChanged: (v) {
+                  setState(() {
+                    _showItemPrices = v;
+                    if (v) {
+                      // If turning back to standard mode, reset manual subtotal controller to calculated value
+                      final calculated = _items.fold(0.0, (sum, item) => sum + item.total);
+                      _subtotalController.text = calculated > 0 ? calculated.toString() : '';
+                    }
+                  });
+                },
                 contentPadding: EdgeInsets.zero,
               ),
               const Gap(16),
@@ -364,8 +394,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                           SizedBox(
                             width: 140,
                             child: TextFormField(
-                              key: ValueKey('subtotal_${_customSubtotal == null}'),
-                              initialValue: subtotal > 0 ? subtotal.toString() : '',
+                              controller: _subtotalController,
                               textAlign: TextAlign.end,
                               decoration: InputDecoration(
                                 prefixText: '৳',
@@ -376,12 +405,11 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                                 filled: true,
                                 fillColor: _showItemPrices ? Colors.grey.shade100 : Colors.white,
                               ),
-                              enabled: !_showItemPrices, // Only editable in Lump Sum mode
+                              readOnly: _showItemPrices, // Make read-only instead of disabled to keep focus logic cleaner
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (v) {
-                                setState(() {
-                                  _customSubtotal = double.tryParse(v);
-                                });
+                                // Trigger rebuild for grand total calculation
+                                setState(() {});
                               },
                             ),
                           ),
@@ -395,7 +423,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                           SizedBox(
                             width: 140,
                             child: TextFormField(
-                              initialValue: _discountAmount > 0 ? _discountAmount.toString() : '',
+                              controller: _discountController,
                               textAlign: TextAlign.end,
                               decoration: const InputDecoration(
                                 prefixText: '৳',
@@ -406,7 +434,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                                 fillColor: Colors.white,
                               ),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              onChanged: (v) => setState(() => _discountAmount = double.tryParse(v) ?? 0),
+                              onChanged: (v) => setState(() {}),
                             ),
                           ),
                         ],
@@ -419,7 +447,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                           SizedBox(
                             width: 140,
                             child: TextFormField(
-                              initialValue: _taxPercent > 0 ? _taxPercent.toString() : '',
+                              controller: _taxController,
                               textAlign: TextAlign.end,
                               decoration: const InputDecoration(
                                 suffixText: '%',
@@ -430,7 +458,7 @@ class _CreateQuotationScreenState extends ConsumerState<CreateQuotationScreen> {
                                 fillColor: Colors.white,
                               ),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              onChanged: (v) => setState(() => _taxPercent = double.tryParse(v) ?? 0),
+                              onChanged: (v) => setState(() {}),
                             ),
                           ),
                         ],
