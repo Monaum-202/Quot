@@ -3,6 +3,7 @@ import 'package:invoice_maker/features/quotations/presentation/screens/quotation
 import 'package:invoice_maker/features/customers/presentation/screens/customer_list_screen.dart';
 import 'package:invoice_maker/features/reports/presentation/screens/reports_screen.dart';
 import 'dashboard_screen.dart';
+import 'settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,6 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const QuotationListScreen(),
     const CustomerListScreen(),
     const ReportsScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -37,6 +39,7 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.description), label: 'Quotations'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Customers'),
           BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Reports'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );
